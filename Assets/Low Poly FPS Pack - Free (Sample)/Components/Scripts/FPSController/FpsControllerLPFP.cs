@@ -46,7 +46,7 @@ namespace FPSControllerLPFP
         private float maxVerticalAngle = 90f;
 
         [Tooltip("The names of the axes and buttons for Unity's Input Manager."), SerializeField]
-        private FpsInput input;
+        public FpsInput input;
 #pragma warning restore 649
 
         private Rigidbody _rigidbody;
@@ -55,15 +55,11 @@ namespace FPSControllerLPFP
         private SmoothRotation _rotationY;
         private SmoothVelocity _velocityX;
         private SmoothVelocity _velocityZ;
-        private bool _isGrounded;
+        public bool _isGrounded;
 
         private readonly RaycastHit[] _groundCastResults = new RaycastHit[8];
         private readonly RaycastHit[] _wallCastResults = new RaycastHit[8];
-        [FMODUnity.EventRef]
-        public string WalkEvent = "";
-        FMOD.Studio.EventInstance Walking;
-        [SerializeField] [Range(0f, 1f)]
-        private float grass;
+
         
         /// Initializes the FpsController on start.
         private void Start()
@@ -78,7 +74,6 @@ namespace FPSControllerLPFP
             Cursor.lockState = CursorLockMode.Locked;
             ValidateRotationRestriction();
 
-            Walking = FMODUnity.RuntimeManager.CreateInstance(WalkEvent);
         }
 			
         private Transform AssignCharactersCamera()
@@ -138,9 +133,7 @@ namespace FPSControllerLPFP
         /// Moves the camera to the character, processes jumping and plays sounds every frame.
         private void Update()
         {
-            FMODUnity.RuntimeManager.AttachInstanceToGameObject(Walking, GetComponent<Transform>(), GetComponent<Rigidbody>());
 			arms.position = transform.position + transform.TransformVector(armPosition);
-            WalkSound();
             Jump();
         }
 
@@ -247,22 +240,7 @@ namespace FPSControllerLPFP
             _rigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
 
-		private void WalkSound()
-        {
-            if (Input.GetButton(input.move) || Input.GetButton(input.strafe))
-            {
 
-                Walking = FMODUnity.RuntimeManager.CreateInstance(WalkEvent);
-                Walking.setParameterByName("Grass", grass);
-                Walking.start();
-                Walking.release();
-
-            }
-            else
-            {
-                Walking.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            }
-        }
         /// A helper for assistance with smoothing the camera rotation.
         private class SmoothRotation
         {
@@ -306,7 +284,7 @@ namespace FPSControllerLPFP
 			
         /// Input mappings
         [Serializable]
-        private class FpsInput
+        public class FpsInput
         {
             [Tooltip("The name of the virtual axis mapped to rotate the camera around the y axis."),
              SerializeField]
@@ -367,10 +345,6 @@ namespace FPSControllerLPFP
             {
                 get { return Input.GetButtonDown(jump); }
             }
-        }
-        private void OnDestroy()
-        {
-            Walking.release();
         }
     }
    
